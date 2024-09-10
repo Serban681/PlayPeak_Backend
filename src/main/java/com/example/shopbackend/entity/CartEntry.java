@@ -1,7 +1,9 @@
 package com.example.shopbackend.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
+@Data
 @Entity
 @Table(name = "cart_entry")
 public class CartEntry {
@@ -9,12 +11,11 @@ public class CartEntry {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @ManyToOne
-    @JoinColumn(name = "product_variance_id", nullable = false)
-    private ProductVariance productVariance;
+    //@JoinColumn(name = "product_variance_id", nullable = false)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
     @Column(nullable = false)
     private int quantity = 0;
-    @Transient
     private float pricePerPiece;
-    @Transient
     private float totalPrice;
 }

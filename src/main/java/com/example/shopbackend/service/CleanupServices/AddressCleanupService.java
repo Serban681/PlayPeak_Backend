@@ -1,4 +1,4 @@
-package com.example.shopbackend.service;
+package com.example.shopbackend.service.CleanupServices;
 
 import com.example.shopbackend.repository.AddressRepository;
 import jakarta.transaction.Transactional;

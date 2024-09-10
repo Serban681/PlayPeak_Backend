@@ -24,7 +24,7 @@ public class AddressController {
     }
 
     @GetMapping("/{id}")
-    public AddressDto getOneById(@PathVariable  int id) {
+    public AddressDto getOneById(@PathVariable int id) {
         return addressService.getOneById(id);
     }
 

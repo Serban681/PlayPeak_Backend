@@ -1,7 +1,9 @@
 package com.example.shopbackend.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
+@Data
 @Entity
 @Table(name="product_attribute_and_value")
 public class ProductAttributeAndValue {

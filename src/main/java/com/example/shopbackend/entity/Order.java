@@ -1,9 +1,13 @@
 package com.example.shopbackend.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import org.springframework.cglib.core.Local;
 
+import java.time.LocalDate;
 import java.util.Date;
 
+@Data
 @Entity
 @Table(name="shop_order")
 public class Order {
@@ -23,11 +27,11 @@ public class Order {
     @JoinColumn(name="delivery_address_id", nullable=false)
     private Address deliveryAddress;
     @ManyToOne
-    @JoinColumn(name="invoice_address_id", nullable=false)
-    private Address invoiceAddress;
+    @JoinColumn(name="billing_address_id", nullable=false)
+    private Address billingAddress;
     @Column(name="total_price", nullable=false)
     private float totalPrice;
     @Column(name = "order_date", nullable = false)
     @Temporal(TemporalType.DATE)
-    private Date orderDate;
+    private LocalDate orderDate;
 }
