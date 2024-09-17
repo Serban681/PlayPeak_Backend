@@ -1,10 +1,12 @@
 package com.example.shopbackend.service;
 
 import com.example.shopbackend.dto.*;
-import com.example.shopbackend.entity.Product;
-import com.example.shopbackend.entity.ProductAttributeAndAttributeValues;
-import com.example.shopbackend.entity.ProductAttributeValue;
-import com.example.shopbackend.entity.ProductVariance;
+import com.example.shopbackend.entity.*;
+import com.example.shopbackend.exceptions.EntityNotFoundException;
+import com.example.shopbackend.mapper.ProductRelatedMappers.ProductAttributeAndValueMapper;
+import com.example.shopbackend.mapper.ProductRelatedMappers.ProductMapper;
+import com.example.shopbackend.mapper.ProductRelatedMappers.ProductVarianceMapper;
+import com.example.shopbackend.repository.ProductRelatedRepositories.ProductAttributeAndValueRepository;
 import com.example.shopbackend.repository.ProductRelatedRepositories.ProductVarianceRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,36 +16,89 @@ import java.util.Map;
 
 @Service
 public class ProductVarianceService {
-    private ProductVarianceRepository productVarianceRepository;
+    private final ProductVarianceRepository productVarianceRepository;
+    private final ProductAttributeAndValueRepository productAttributeAndValueRepository;
+
+    private final ProductAttributeAndValueMapper productAttributeAndValueMapper;
+    private final ProductVarianceMapper productVarianceMapper;
+    private final ProductMapper productMapper;
 
     public ProductVarianceService(
-            ProductVarianceRepository productVarianceRepository
+            ProductVarianceRepository productVarianceRepository,
+            ProductAttributeAndValueRepository productAttributeAndValueRepository,
+            ProductAttributeAndValueMapper productAttributeAndValueMapper,
+            ProductVarianceMapper productVarianceMapper,
+            ProductMapper productMapper
     ) {
         this.productVarianceRepository = productVarianceRepository;
+        this.productAttributeAndValueRepository = productAttributeAndValueRepository;
+        this.productAttributeAndValueMapper = productAttributeAndValueMapper;
+        this.productVarianceMapper = productVarianceMapper;
+        this.productMapper = productMapper;
     }
 
-    public void create(ProductDto productDto, List<ProductAttributeAndAttributeValuesDto> paavDtos) {
-        List<ProductVarianceDto> productVariances = generateVariations(productDto, paavDtos);
+    public List<ProductVarianceRequest> getAll() {
+        return productVarianceRepository.findAllByOrderByIdAsc().stream().map(productVarianceMapper::entityToRequest).toList();
     }
 
-    public List<ProductVarianceDto> generateVariations(ProductDto product, List<ProductAttributeAndAttributeValuesDto> attributesAndValues) {
-        List<ProductVarianceDto> result = new ArrayList<>();
+    public List<ProductVarianceRequest> getByProductId(int productId) {
+        return productVarianceRepository.findByProductIdOrderByIdAsc(productId).stream().map(productVarianceMapper::entityToRequest).toList();
+    }
 
-        List<List<ProductAttributeAndValueDto>> combinations = generateCombinations(attributesAndValues);
+    public void create(ProductDto productDto) {
+        generateVariations(productDto);
+    }
 
-        for (List<ProductAttributeAndValueDto> combination : combinations) {
-            ProductVarianceDto variance = new ProductVarianceDto();
-            variance.setProduct(product);
-            variance.setAttributesAndValues(combination);
-            variance.setQuantity(0);
+    public ProductVarianceRequest updateQuantity(int id, int quantity) {
+        ProductVariance productVariance = productVarianceRepository.findById(id);
 
-            result.add(variance);
+        if(productVariance == null) {
+            throw new EntityNotFoundException("Product Variance", id);
         }
 
-        return result;
+        productVariance.setQuantity(quantity);
+        return productVarianceMapper.entityToRequest(productVarianceRepository.save(productVariance));
     }
 
-    public List<List<ProductAttributeAndValueDto>> generateCombinations(List<ProductAttributeAndAttributeValuesDto> attributesAndValues) {
+    public void deleteVariancesByProductId(int productId) {
+        List<ProductVariance> productVariances = productVarianceRepository.findByProductId(productId);
+        productVarianceRepository.deleteAll(productVariances);
+    }
+
+    public void deleteById(int id) {
+        productVarianceRepository.deleteById(id);
+    }
+
+    private void generateVariations(ProductDto product) {
+        List<ProductVariance> result = new ArrayList<>();
+
+        List<List<ProductAttributeAndValueDto>> combinations = generateCombinations(product.getAttributesAndAttributeValues());
+
+        List<List<ProductAttributeAndValue>> combinationsEntities = new ArrayList<>();
+
+        for (List<ProductAttributeAndValueDto> combination : combinations) {
+            List<ProductAttributeAndValue> combinationEntities = new ArrayList<>();
+
+            for (ProductAttributeAndValueDto attributeAndValue : combination) {
+                ProductAttributeAndValue attributeAndValueEntity = productAttributeAndValueMapper.dtoToEntity(attributeAndValue);
+                combinationEntities.add(productAttributeAndValueRepository.save(attributeAndValueEntity));
+            }
+
+            combinationsEntities.add(combinationEntities);
+        }
+
+
+        for (List<ProductAttributeAndValue> combination : combinationsEntities) {
+            ProductVariance variance = new ProductVariance();
+            variance.setProduct(productMapper.toEntity(product));
+            variance.setAttributesAndValues(combination);
+            variance.setQuantity(0);
+            productVarianceRepository.save(variance);
+            result.add(variance);
+        }
+    }
+
+    private List<List<ProductAttributeAndValueDto>> generateCombinations(List<ProductAttributeAndAttributeValuesDto> attributesAndValues) {
         List<List<ProductAttributeAndValueDto>> result = new ArrayList<>();
 
         generateVariationsRecursive(result, new ArrayList<>(), 0, attributesAndValues);
@@ -66,9 +121,16 @@ public class ProductVarianceService {
 
         for (ProductAttributeValueDto value : values) {
             ProductAttributeAndValueDto variation = new ProductAttributeAndValueDto();
-            variation.setId(value.getId());
-            variation.setName(attribute.getName());
-            variation.setValue(value.getValue());
+
+            ProductAttributeDto attributeDto = new ProductAttributeDto();
+            attributeDto.setId(attribute.getId());
+            attributeDto.setName(attribute.getName());
+            variation.setAttribute(attributeDto);
+
+            ProductAttributeValueDto valueDto = new ProductAttributeValueDto();
+            valueDto.setId(value.getId());
+            valueDto.setValue(value.getValue());
+            variation.setAttributeValue(valueDto);
 
             current.add(variation);
             generateVariationsRecursive(result, current, depth + 1, attributesAndValues);

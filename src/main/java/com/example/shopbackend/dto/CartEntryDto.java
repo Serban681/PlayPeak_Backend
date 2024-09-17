@@ -7,8 +7,7 @@ import lombok.ToString;
 @Data
 public class CartEntryDto {
     private int id;
-    // private ProductVarianceDto productVariance;
-    private ProductDto product;
+    private ProductVarianceRequest productVariance;
     private int quantity;
     private float pricePerPiece;
     private float totalPrice;

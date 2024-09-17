@@ -30,8 +30,8 @@ public class CartController {
     }
 
     @PostMapping("/add-product")
-    public ResponseEntity<CartDto> addProductToCart(@RequestParam int productId, @RequestParam int cartId) {
-        return ResponseEntity.ok(cartService.addProductToCart(productId, cartId));
+    public ResponseEntity<CartDto> addProductToCart(@RequestParam int productVarianceId, @RequestParam int cartId) {
+        return ResponseEntity.ok(cartService.addProductToCart(productVarianceId, cartId));
     }
 
     @PutMapping("/product/update-quantity")

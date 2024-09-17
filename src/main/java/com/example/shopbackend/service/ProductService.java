@@ -24,7 +24,6 @@ public class ProductService {
     private final ProductAttributesAndAttributeValuesService productAttributeAndAttributeValuesService;
     private final ProductAttributeAndAttributeValuesMapper productAttributeAndAttributeValuesMapper;
     private final CategoryService categoryService;
-//    private final ProductAttributeAndAttributeValuesRepository productAttributeAndAttributeValuesRepository;
     private final ProductVarianceService productVarianceService;
 
     public ProductService(
@@ -106,15 +105,18 @@ public class ProductService {
 
         productToSave.setAttributesAndAttributeValues(productAttributesAndAttributeValues);
 
-        productVarianceService.create(productDto, productDto.getAttributesAndAttributeValues());
+        ProductDto savedProduct = productMapper.toDto(productRepository.save(productToSave));
 
-        return productMapper.dtoToRequest(productMapper.toDto(productRepository.save(productToSave)));
+        productVarianceService.create(savedProduct);
+
+        return productMapper.dtoToRequest(savedProduct);
     }
 
     public void delete(int id) {
         Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Product", id));
         List<ProductAttributeAndAttributeValues> attributesAndAttributeValues = product.getAttributesAndAttributeValues();
         productAttributeAndAttributeValuesService.deleteAll(attributesAndAttributeValues.stream().map(productAttributeAndAttributeValuesMapper::toDto).toList());
+        productVarianceService.deleteVariancesByProductId(id);
         productRepository.delete(product);
     }
 

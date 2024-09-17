@@ -4,12 +4,13 @@ import com.example.shopbackend.dto.CartDto;
 import com.example.shopbackend.dto.CartEntryDto;
 import com.example.shopbackend.entity.Cart;
 import com.example.shopbackend.entity.CartEntry;
-import com.example.shopbackend.entity.Product;
+import com.example.shopbackend.entity.ProductVariance;
 import com.example.shopbackend.exceptions.EntityNotFoundException;
 import com.example.shopbackend.mapper.OrderRelatedMappers.CartMapper;
 import com.example.shopbackend.repository.CartEntryRepository;
 import com.example.shopbackend.repository.CartRepository;
 import com.example.shopbackend.repository.ProductRelatedRepositories.ProductRepository;
+import com.example.shopbackend.repository.ProductRelatedRepositories.ProductVarianceRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -23,12 +24,13 @@ public class CartService {
     private final UserService userService;
 //    private final CartEntryMapper cartEntryMapper;
     private final CartEntryRepository cartEntryRepository;
-    private final ProductRepository productRepository;
+    private final ProductVarianceRepository productVarianceRepository;
 
     public CartService(
             CartMapper cartMapper,
             CartRepository cartRepository,
             UserService userService,
+            ProductVarianceRepository productVarianceRepository,
 //            CartEntryMapper cartEntryMapper
             CartEntryRepository cartEntryRepository,
             ProductRepository productRepository
@@ -38,7 +40,7 @@ public class CartService {
         this.userService = userService;
 //        this.cartEntryMapper = cartEntryMapper;
         this.cartEntryRepository = cartEntryRepository;
-        this.productRepository = productRepository;
+        this.productVarianceRepository = productVarianceRepository;
     }
 
     public List<CartDto> getAll() {
@@ -71,25 +73,32 @@ public class CartService {
     }
 
     @Transactional
-    public CartDto addProductToCart(int productId, int cartId) {
+    public CartDto addProductToCart(int productVarianceId, int cartId) {
         Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new EntityNotFoundException("Cart not found", cartId));
 
-        Product product = productRepository.findProductById(productId);
+        ProductVariance productVariance = productVarianceRepository.findById(productVarianceId);
 
-        if(product == null) {
-            throw new EntityNotFoundException("Product not found", productId);
+        if(productVariance == null) {
+            throw new EntityNotFoundException("Product Variance", productVarianceId);
         }
 
-        CartEntry cartEntry = cart.getCartEntries().stream().filter(entry -> entry.getProduct().getId() == productId).findFirst().orElse(null);
+        CartEntry cartEntry = cart.getCartEntries().stream().filter(entry -> entry.getProductVariance().getId() == productVarianceId).findFirst().orElse(null);
 
         if(cartEntry != null) {
-            return cartMapper.toDto(cart);
+            cartEntry.setQuantity(cartEntry.getQuantity() + 1);
+            cartEntry.setTotalPrice(cartEntry.getPricePerPiece() * cartEntry.getQuantity());
+
+            cartEntryRepository.save(cartEntry);
+
+            cart.setTotalPrice(cart.getTotalPrice() + cartEntry.getPricePerPiece());
+
+            return cartMapper.toDto(cartRepository.save(cart));
         }
 
         cartEntry = new CartEntry();
-        cartEntry.setProduct(product);
+        cartEntry.setProductVariance(productVariance);
         cartEntry.setQuantity(1);
-        cartEntry.setPricePerPiece(cartEntry.getProduct().getPrice());
+        cartEntry.setPricePerPiece(cartEntry.getProductVariance().getProduct().getPrice());
         cartEntry.setTotalPrice(cartEntry.getPricePerPiece() * cartEntry.getQuantity());
 
         CartEntry savedCartEntry = cartEntryRepository.save(cartEntry);
