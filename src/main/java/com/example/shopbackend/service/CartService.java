@@ -1,7 +1,6 @@
 package com.example.shopbackend.service;
 
 import com.example.shopbackend.dto.CartDto;
-import com.example.shopbackend.dto.CartEntryDto;
 import com.example.shopbackend.entity.Cart;
 import com.example.shopbackend.entity.CartEntry;
 import com.example.shopbackend.entity.ProductVariance;

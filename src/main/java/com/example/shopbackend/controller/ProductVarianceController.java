@@ -32,10 +32,4 @@ public class ProductVarianceController {
     public ResponseEntity<ProductVarianceRequest> updateQuantity(@PathVariable int id, @RequestParam int quantity) {
         return new ResponseEntity<>(productVarianceService.updateQuantity(id, quantity), HttpStatus.OK);
     }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable int id) {
-        productVarianceService.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
 }

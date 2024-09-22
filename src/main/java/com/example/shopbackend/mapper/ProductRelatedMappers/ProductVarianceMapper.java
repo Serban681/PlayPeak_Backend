@@ -45,7 +45,7 @@ public class ProductVarianceMapper {
         public ProductVarianceRequest entityToRequest(ProductVariance productVariance) {
             ProductVarianceRequest productVarianceRequest = new ProductVarianceRequest();
             productVarianceRequest.setId(productVariance.getId());
-            productVarianceRequest.setProductId(productVariance.getProduct().getId());
+            productVarianceRequest.setProduct(productMapper.dtoToRequest(productMapper.toDto(productVariance.getProduct())));
             productVarianceRequest.setAttributesAndValues(
                     productVariance.getAttributesAndValues().stream().map(attributeAndValueMapper::entityToRequest).toList()
             );
@@ -57,7 +57,7 @@ public class ProductVarianceMapper {
         public ProductVariance requestToEntity(ProductVarianceRequest productVarianceRequest) {
             ProductVariance productVariance = new ProductVariance();
             productVariance.setId(productVarianceRequest.getId());
-            productVariance.setProduct(productRepository.findById(productVarianceRequest.getProductId()).orElseThrow(() -> new EntityNotFoundException("Product", productVarianceRequest.getProductId())));
+            productVariance.setProduct(productMapper.toEntity(productMapper.requestToDto(productVarianceRequest.getProduct())));
             productVariance.setAttributesAndValues(
                     productVarianceRequest.getAttributesAndValues().stream().map(attributeAndValueMapper::requestToEntity).toList()
             );

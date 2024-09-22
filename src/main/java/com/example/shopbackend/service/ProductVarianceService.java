@@ -65,10 +65,6 @@ public class ProductVarianceService {
         productVarianceRepository.deleteAll(productVariances);
     }
 
-    public void deleteById(int id) {
-        productVarianceRepository.deleteById(id);
-    }
-
     private void generateVariations(ProductDto product) {
         List<ProductVariance> result = new ArrayList<>();
 

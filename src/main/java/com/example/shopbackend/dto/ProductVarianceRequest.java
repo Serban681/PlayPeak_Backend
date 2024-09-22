@@ -9,7 +9,7 @@ import java.util.List;
 @ToString
 public class ProductVarianceRequest {
     private int id;
-    private int productId;
+    private ProductRequest product;
     private List<ProductAttributeAndValueRequest> attributesAndValues;
     private int quantity = 0;
 }
