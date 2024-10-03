@@ -34,6 +34,8 @@ public class AddressService {
     public AddressDto create(AddressDto addressDto) {
         List<Address> existingAddresses = addressRepository.findAddressByProperties(addressDto.getStreetLine(), addressDto.getPostalCode(), addressDto.getCity(), addressDto.getCounty(), addressDto.getCountry());
 
+        //.out.println(existingAddresses.getFirst());
+
         if(!existingAddresses.isEmpty()) {
             return addressMapper.toDto(existingAddresses.getFirst());
         }
@@ -42,6 +44,12 @@ public class AddressService {
     }
 
     public AddressDto update(AddressDto addressDto) {
+        Address address = addressRepository.findAddressByProperties(addressDto.getStreetLine(), addressDto.getPostalCode(), addressDto.getCity(), addressDto.getCounty(), addressDto.getCountry()).getFirst();
+
+        if(address == null) {
+            return create(addressDto);
+        }
+
         return addressMapper.toDto(addressRepository.save(addressMapper.toEntity(addressDto)));
     }
 

@@ -7,6 +7,7 @@ import com.example.shopbackend.dto.UserDto;
 import com.example.shopbackend.entity.User;
 import com.example.shopbackend.exceptions.EntityNotFoundException;
 import com.example.shopbackend.exceptions.InvalidEmailOrPasswordException;
+import com.example.shopbackend.mapper.AddressMapper;
 import com.example.shopbackend.mapper.UserMapper;
 import com.example.shopbackend.repository.UserRepository;
 import com.example.shopbackend.utils.PasswordEncoder;
@@ -24,11 +25,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final AddressService addressService;
+    private final AddressMapper addressMapper;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper, AddressService addressService) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, AddressService addressService, AddressMapper addressMapper) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.addressService = addressService;
+        this.addressMapper = addressMapper;
     }
 
     public UserDto login(LoginRequestDto loginRequest) {
@@ -68,9 +71,19 @@ public class UserService {
     }
 
     public UserDto update(UserDto userDto) {
-        setUserDto(userDto);
+//        System.out.println(userDto.toString());
+//
+//        userDto.setDefaultDeliveryAddress(addressService.update(userDto.getDefaultDeliveryAddress()));
+//        userDto.setDefaultBillingAddress(addressService.update(userDto.getDefaultBillingAddress()));
+//
+//        System.out.println(userDto.toString());
 
         User user = userMapper.toEntity(userDto);
+
+        user.setDefault_delivery_address(addressMapper.toEntity(addressService.create(userDto.getDefaultDeliveryAddress())));
+        user.setDefault_billing_address(addressMapper.toEntity(addressService.create(userDto.getDefaultBillingAddress())));
+
+        System.out.println(user.toString());
 
         return userMapper.toDto(userRepository.save(user));
     }

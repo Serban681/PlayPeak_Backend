@@ -18,6 +18,7 @@ public class Cart {
     private User user;
     @OneToMany
     @JoinColumn(name="cart_id")
+    @OrderBy("id ASC")
     private List<CartEntry> cartEntries;
     private float totalPrice = 0;
 }

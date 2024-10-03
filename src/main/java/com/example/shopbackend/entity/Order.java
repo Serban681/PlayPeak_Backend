@@ -29,8 +29,6 @@ public class Order {
     @ManyToOne
     @JoinColumn(name="billing_address_id", nullable=false)
     private Address billingAddress;
-    @Column(name="total_price", nullable=false)
-    private float totalPrice;
     @Column(name = "order_date", nullable = false)
     @Temporal(TemporalType.DATE)
     private LocalDate orderDate;

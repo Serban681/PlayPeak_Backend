@@ -22,29 +22,27 @@ public class OrderMapper {
         this.addressMapper = addressMapper;
     }
 
-    public OrderDto toDto(Order order) {
+    public OrderDto entityToDto(Order order) {
         OrderDto orderDto = new OrderDto();
         orderDto.setId(order.getId());
         orderDto.setUser(userMapper.toDto(order.getUser()));
-        orderDto.setCart(cartMapper.toDto(order.getCart()));
+        orderDto.setCart(cartMapper.entityToDto(order.getCart()));
         orderDto.setPaymentType(order.getPaymentType());
         orderDto.setDeliveryAddress(addressMapper.toDto(order.getDeliveryAddress()));
         orderDto.setBillingAddress(addressMapper.toDto(order.getBillingAddress()));
-        orderDto.setTotalPrice(order.getTotalPrice());
         orderDto.setOrderDate(order.getOrderDate());
 
         return orderDto;
     }
 
-    public Order toEntity(OrderDto orderDto) {
+    public Order dtoToEntity(OrderDto orderDto) {
         Order order = new Order();
         order.setId(orderDto.getId());
         order.setUser(userMapper.toEntity(orderDto.getUser()));
-        order.setCart(cartMapper.toEntity(orderDto.getCart()));
+        order.setCart(cartMapper.dtoToEntity(orderDto.getCart()));
         order.setPaymentType(orderDto.getPaymentType());
         order.setDeliveryAddress(addressMapper.toEntity(orderDto.getDeliveryAddress()));
         order.setBillingAddress(addressMapper.toEntity(orderDto.getBillingAddress()));
-        order.setTotalPrice(orderDto.getTotalPrice());
         order.setOrderDate(orderDto.getOrderDate());
 
         return order;
