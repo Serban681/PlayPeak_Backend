@@ -33,10 +33,10 @@ public class AddressController {
         return new ResponseEntity<>(addressService.create(addressDto), HttpStatus.CREATED);
     }
 
-    @PutMapping
-    public ResponseEntity<AddressDto> update(@RequestBody AddressDto addressDto) {
-        return new ResponseEntity<>(addressService.update(addressDto), HttpStatus.OK);
-    }
+//    @PutMapping
+//    public ResponseEntity<AddressDto> update(@RequestBody AddressDto addressDto) {
+//        return new ResponseEntity<>(addressService.update(addressDto), HttpStatus.OK);
+//    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable int id) {

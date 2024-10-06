@@ -27,7 +27,7 @@ public class Address {
     @Column(nullable=false)
     private String county;
 
-    @Column(nullable=false)
+    @Column(name="country", nullable=false)
     private String country;
 
     @Override

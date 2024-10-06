@@ -14,7 +14,7 @@ public class CategoryCleanupService {
     }
 
     @Transactional
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 0 * * * *")
     public void cleanupUnreferencedCategories() {
         categoryRepository.deleteAll(categoryRepository.findUnreferencedCategories());
     }

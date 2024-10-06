@@ -68,7 +68,7 @@ public class OrderService {
                 "order@cool-shop.com",
                 "Order confirmation",
                 "<div style=\"font-family: Arial, sans-serif; color: #333;\">" +
-                        "<h1 style=\"color: #4CAF50;\">Order Confirmation</h1>" +
+                        "<h1 style=\"color: #F8B8ED;\">Order Confirmation</h1>" +
                         "<p>Dear " + order.getUser().getFirstName() + ",</p>" +
                         "<p>Your order has been successfully placed. Thank you for shopping with us!</p>" +
                         "<p><strong>Here is what you ordered:</strong></p>" +
