@@ -1,9 +1,11 @@
 package com.example.shopbackend.controller;
 
 import com.example.shopbackend.dto.LoginRequestDto;
+import com.example.shopbackend.dto.ResetPasswordDto;
 import com.example.shopbackend.dto.SimpleUserDto;
 import com.example.shopbackend.dto.UserDto;
 import com.example.shopbackend.service.UserService;
+import jakarta.mail.MessagingException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +26,18 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<UserDto> login(@RequestBody LoginRequestDto loginRequest) {
         return new ResponseEntity<>(userService.login(loginRequest), HttpStatus.OK);
+    }
+
+    @PostMapping("/reset-pass-email")
+    public ResponseEntity<Void> sendResetPassEmail(@RequestParam String email) throws MessagingException {
+        userService.sendResetPasswordEmail(email);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@RequestBody ResetPasswordDto resetPasswordDto) throws NoSuchAlgorithmException {
+        userService.updatePassword(resetPasswordDto);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping

@@ -15,17 +15,18 @@ public class CartMapper {
         this.userMapper = userMapper;
     }
 
-    public CartDto toDto(Cart cart) {
+    public CartDto entityToDto(Cart cart) {
         CartDto cartDto = new CartDto();
         cartDto.setId(cart.getId());
-        cartDto.setUser(userMapper.toDto(cart.getUser()));
+        if(cart.getUser() != null)
+            cartDto.setUser(userMapper.toDto(cart.getUser()));
         cartDto.setCartEntries(cart.getCartEntries().stream().map(cartEntryMapper::toDto).toList());
         cartDto.setTotalPrice(cart.getTotalPrice());
 
         return cartDto;
     }
 
-    public Cart toEntity(CartDto cartDto) {
+    public Cart dtoToEntity(CartDto cartDto) {
         Cart cart = new Cart();
         cart.setId(cartDto.getId());
         cart.setUser(userMapper.toEntity(cartDto.getUser()));

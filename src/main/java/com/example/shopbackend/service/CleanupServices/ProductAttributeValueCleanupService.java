@@ -15,7 +15,7 @@ public class ProductAttributeValueCleanupService {
     }
 
     @Transactional
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 0 * * * *")
     public void cleanupUnreferencedProductAttributeValues() {
         productAttributeValueRepository.deleteAll(productAttributeValueRepository.findUnreferencedProductAttributeValues());
     }

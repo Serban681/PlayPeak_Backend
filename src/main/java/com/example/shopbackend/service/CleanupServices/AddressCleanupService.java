@@ -14,7 +14,7 @@ public class AddressCleanupService {
     }
 
     @Transactional
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 0 * * * *")
     public void cleanupUnreferencedAddresses() {
         addressRepository.deleteAll(addressRepository.findUnreferencedAddresses());
     }

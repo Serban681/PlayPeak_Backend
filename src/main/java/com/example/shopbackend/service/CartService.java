@@ -44,7 +44,7 @@ public class CartService {
 
     public List<CartDto> getAll() {
         return cartRepository.findAll().stream()
-                .map(cartMapper::toDto)
+                .map(cartMapper::entityToDto)
                 .toList();
     }
 
@@ -55,11 +55,25 @@ public class CartService {
             return createCart(userId);
         }
 
-        return cartMapper.toDto(cartRepository.findCartByUserId(userId));
+        return cartMapper.entityToDto(cartRepository.findCartByUserId(userId));
+    }
+
+    public Void removeCartFromUser(int userId) {
+        Cart cart = cartRepository.findCartByUserId(userId);
+
+        if(cart == null) {
+            throw new EntityNotFoundException("Cart with user id not found", userId);
+        }
+
+        cart.setUser(null);
+
+        cartRepository.save(cart);
+
+        return null;
     }
 
     public CartDto getOneById(int id) {
-        return cartMapper.toDto(cartRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Cart not found", id)));
+        return cartMapper.entityToDto(cartRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Cart not found", id)));
     }
 
     public CartDto createCart(int userId) {
@@ -68,7 +82,7 @@ public class CartService {
         cartDto.setCartEntries(new ArrayList<>());
         cartDto.setTotalPrice(0);
 
-        return cartMapper.toDto(cartRepository.save(cartMapper.toEntity(cartDto)));
+        return cartMapper.entityToDto(cartRepository.save(cartMapper.dtoToEntity(cartDto)));
     }
 
     @Transactional
@@ -91,7 +105,7 @@ public class CartService {
 
             cart.setTotalPrice(cart.getTotalPrice() + cartEntry.getPricePerPiece());
 
-            return cartMapper.toDto(cartRepository.save(cart));
+            return cartMapper.entityToDto(cartRepository.save(cart));
         }
 
         cartEntry = new CartEntry();
@@ -107,22 +121,22 @@ public class CartService {
         cart.setCartEntries(currentCartEntries);
         cart.setTotalPrice(cart.getTotalPrice() + cartEntry.getTotalPrice());
 
-        return cartMapper.toDto(cartRepository.save(cart));
+        return cartMapper.entityToDto(cartRepository.save(cart));
     }
 
     public CartDto removeProductFromCart(int cartEntryId) {
         Cart cart = cartRepository.findCartByCartEntryId(cartEntryId);
 
         if(cart == null) {
-            throw new EntityNotFoundException("Cart with cart entry id not found", cartEntryId);
+            throw new EntityNotFoundException("Cart", cartEntryId);
         }
 
-        CartEntry cartEntry = cartEntryRepository.findById(cartEntryId).orElseThrow(() -> new EntityNotFoundException("Cart entry not found", cartEntryId));
+        CartEntry cartEntry = cartEntryRepository.findById(cartEntryId).orElseThrow(() -> new EntityNotFoundException("Cart entry", cartEntryId));
         cart.setTotalPrice(cart.getTotalPrice() - cartEntry.getTotalPrice());
         cart.setCartEntries(cart.getCartEntries().stream().filter(entry -> entry.getId() != cartEntryId).toList());
 
         cartEntryRepository.delete(cartEntry);
-        return cartMapper.toDto(cartRepository.save(cart));
+        return cartMapper.entityToDto(cart);
     }
 
     public CartDto modifyCartEntryQuantity(int cartEntryId, int quantity) {
@@ -140,7 +154,7 @@ public class CartService {
 
         cart.setTotalPrice(cart.getCartEntries().stream().map(CartEntry::getTotalPrice).reduce(0f, Float::sum));
 
-        return cartMapper.toDto(cartRepository.save(cart));
+        return cartMapper.entityToDto(cartRepository.save(cart));
     }
 
 //    public CartDto updateCart(CartDto cartDto) {

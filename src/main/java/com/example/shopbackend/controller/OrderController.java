@@ -1,8 +1,10 @@
 package com.example.shopbackend.controller;
 
 import com.example.shopbackend.dto.OrderDto;
+import com.example.shopbackend.dto.OrderRequest;
 import com.example.shopbackend.entity.Order;
 import com.example.shopbackend.service.OrderService;
+import jakarta.mail.MessagingException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +27,14 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<OrderDto> create(@RequestBody OrderDto orderDto) {
-        return new ResponseEntity<>(orderService.create(orderDto), HttpStatus.CREATED);
+    public ResponseEntity<OrderDto> create(@RequestBody OrderRequest orderRequest) throws MessagingException {
+        return new ResponseEntity<>(orderService.create(orderRequest), HttpStatus.CREATED);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteAll() {
+        orderService.deleteAll();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/{id}")

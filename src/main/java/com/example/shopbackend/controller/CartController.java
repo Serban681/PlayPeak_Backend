@@ -29,6 +29,11 @@ public class CartController {
         return ResponseEntity.ok(cartService.getCartByUserId(userId));
     }
 
+    @PutMapping("/remove-user/{userId}")
+    public ResponseEntity<Void> removeCartFromUser(@PathVariable int userId) {
+        return ResponseEntity.ok(cartService.removeCartFromUser(userId));
+    }
+
     @PostMapping("/add-product")
     public ResponseEntity<CartDto> addProductToCart(@RequestParam int productVarianceId, @RequestParam int cartId) {
         return ResponseEntity.ok(cartService.addProductToCart(productVarianceId, cartId));
