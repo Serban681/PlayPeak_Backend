@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/v1/product")
 public class ProductController {
@@ -33,6 +33,11 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<ProductRequest> create(@RequestBody ProductRequest product) {
         return new ResponseEntity<>(productService.create(product), HttpStatus.CREATED);
+    }
+
+    @PostMapping("many")
+    public ResponseEntity<List<ProductRequest>> createMany(@RequestBody List<ProductRequest> products) {
+        return new ResponseEntity<>(productService.createMany(products), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")

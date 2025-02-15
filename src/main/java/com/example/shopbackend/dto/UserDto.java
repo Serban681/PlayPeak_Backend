@@ -1,5 +1,6 @@
 package com.example.shopbackend.dto;
 
+import com.example.shopbackend.entity.Gender;
 import lombok.Data;
 import lombok.ToString;
 
@@ -12,9 +13,15 @@ public class UserDto {
 
     private String lastName;
 
+    private String profileImageUrl;
+
     private String email;
 
     private String phoneNumber;
+
+    private Gender gender;
+
+    private int age;
 
     private String password;
 

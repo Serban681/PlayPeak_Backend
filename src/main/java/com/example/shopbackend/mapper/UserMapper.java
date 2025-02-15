@@ -20,6 +20,9 @@ public class UserMapper {
         userDto.setFirstName(user.getFirstName());
         userDto.setLastName(user.getLastName());
         userDto.setEmail(user.getEmail());
+        userDto.setProfileImageUrl(userDto.getProfileImageUrl());
+        userDto.setAge(userDto.getAge());
+        userDto.setGender(userDto.getGender());
         userDto.setPhoneNumber(user.getPhoneNumber());
         userDto.setPassword(user.getPassword());
         userDto.setDefaultDeliveryAddress(addressMapper.toDto(user.getDefault_delivery_address()));
@@ -32,6 +35,9 @@ public class UserMapper {
         user.setId(userDto.getId());
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
+        user.setProfileImageUrl(userDto.getProfileImageUrl());
+        user.setAge(userDto.getAge());
+        user.setGender(userDto.getGender());
         user.setEmail(userDto.getEmail());
         user.setPhoneNumber(userDto.getPhoneNumber());
         user.setPassword(userDto.getPassword());

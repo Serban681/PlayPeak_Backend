@@ -22,11 +22,21 @@ public class User {
     @Column(name="last_name", nullable = false)
     private String lastName;
 
+    @Column(name="profile_image_url")
+    private String profileImageUrl;
+
     @Column(nullable = false)
     private String email;
 
     @Column(name="phone_number", nullable = false)
     private String phoneNumber;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
+    @Column(nullable = false)
+    private int age;
 
     @Column(nullable = false)
     private String password;

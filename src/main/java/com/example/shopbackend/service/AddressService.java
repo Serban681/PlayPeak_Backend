@@ -32,7 +32,6 @@ public class AddressService {
         List<Address> existingAddresses = addressRepository.findAddressByProperties(addressDto.getStreetLine(), addressDto.getPostalCode(), addressDto.getCity(), addressDto.getCounty(), addressDto.getCountry());
 
         if(!existingAddresses.isEmpty()) {
-            System.out.println("Address already exists");
             return addressMapper.toDto(existingAddresses.getFirst());
         }
 

@@ -112,6 +112,16 @@ public class ProductService {
         return productMapper.dtoToRequest(savedProduct);
     }
 
+    public List<ProductRequest> createMany(List<ProductRequest> productRequests) {
+        List<ProductRequest> savedProducts = new ArrayList<>();
+
+        for (ProductRequest productRequest : productRequests) {
+            savedProducts.add(create(productRequest));
+        }
+
+        return savedProducts;
+    }
+
     public void delete(int id) {
         Product product = productRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Product", id));
         List<ProductAttributeAndAttributeValues> attributesAndAttributeValues = product.getAttributesAndAttributeValues();
