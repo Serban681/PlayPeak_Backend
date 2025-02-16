@@ -8,6 +8,7 @@ import com.example.shopbackend.mapper.OrderRelatedMappers.CartMapper;
 import com.example.shopbackend.mapper.OrderRelatedMappers.OrderMapper;
 import com.example.shopbackend.mapper.UserMapper;
 import com.example.shopbackend.repository.OrderRepository;
+import com.example.shopbackend.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import org.springframework.stereotype.Service;
 
@@ -19,25 +20,28 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
     private final CartMapper cartMapper;
-    private final UserService userService;
+    private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final AddressMapper addressMapper;
     private final EmailService emailService;
+    private final CartService cartService;
 
     private OrderService(OrderRepository orderRepository,
                          OrderMapper orderMapper,
                          CartMapper cartMapper,
-                         UserService userService,
+                         UserRepository userRepository,
                          UserMapper userMapper,
                          AddressMapper addressMapper,
-                         EmailService emailService) {
+                         EmailService emailService,
+                         CartService cartService) {
         this.orderRepository = orderRepository;
         this.orderMapper = orderMapper;
         this.cartMapper = cartMapper;
-        this.userService = userService;
+        this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.addressMapper = addressMapper;
         this.emailService = emailService;
+        this.cartService = cartService;
     }
 
     public List<OrderDto> getAll() {
@@ -46,7 +50,7 @@ public class OrderService {
 
     public OrderDto create(OrderRequest orderRequest) throws MessagingException {
         Order order = new Order();
-        order.setUser(userMapper.toEntity(userService.getOneById(orderRequest.getUserId())));
+        order.setUser(userRepository.findById(orderRequest.getUserId()));
         order.setCart(cartMapper.dtoToEntity(orderRequest.getCart()));
         order.setPaymentType(orderRequest.getPaymentType());
         order.setDeliveryAddress(addressMapper.toEntity(orderRequest.getDeliveryAddress()));
@@ -98,5 +102,11 @@ public class OrderService {
 
     public void delete(Integer id) {
         orderRepository.deleteById(id);
+    }
+
+    public void deleteByUserId(Integer userId) {
+        List<Order> orders = orderRepository.findAllByUserId(userId);
+        orderRepository.deleteAllByUserId(userId);
+        orders.forEach(order -> cartService.deleteCart(order.getCart().getId()));
     }
 }

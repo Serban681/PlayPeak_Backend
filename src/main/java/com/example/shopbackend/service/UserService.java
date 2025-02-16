@@ -6,6 +6,8 @@ import com.example.shopbackend.exceptions.EntityNotFoundException;
 import com.example.shopbackend.exceptions.InvalidEmailOrPasswordException;
 import com.example.shopbackend.mapper.AddressMapper;
 import com.example.shopbackend.mapper.UserMapper;
+import com.example.shopbackend.repository.CartEntryRepository;
+import com.example.shopbackend.repository.CartRepository;
 import com.example.shopbackend.repository.UserRepository;
 import com.example.shopbackend.utils.PasswordEncoder;
 import jakarta.mail.MessagingException;
@@ -15,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
@@ -25,13 +28,17 @@ public class UserService {
     private final AddressService addressService;
     private final AddressMapper addressMapper;
     private final EmailService emailService;
+    private final CartService cartService;
+    private final OrderService orderService;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper, AddressService addressService, AddressMapper addressMapper, EmailService emailService) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, AddressService addressService, AddressMapper addressMapper, EmailService emailService, CartService cartService, OrderService orderService) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.addressService = addressService;
         this.addressMapper = addressMapper;
         this.emailService = emailService;
+        this.cartService = cartService;
+        this.orderService = orderService;
     }
 
     public UserDto login(LoginRequestDto loginRequest) {
@@ -109,6 +116,9 @@ public class UserService {
     }
 
     public void delete(int id) {
+        orderService.deleteByUserId(id);
+        CartDto cartDto = cartService.removeCartFromUser(id);
+        cartService.deleteCart(cartDto.getId());
         userRepository.deleteById(id);
     }
 

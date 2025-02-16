@@ -4,12 +4,15 @@ import com.example.shopbackend.dto.CartDto;
 import com.example.shopbackend.entity.Cart;
 import com.example.shopbackend.entity.CartEntry;
 import com.example.shopbackend.entity.ProductVariance;
+import com.example.shopbackend.entity.User;
 import com.example.shopbackend.exceptions.EntityNotFoundException;
 import com.example.shopbackend.mapper.OrderRelatedMappers.CartMapper;
+import com.example.shopbackend.mapper.UserMapper;
 import com.example.shopbackend.repository.CartEntryRepository;
 import com.example.shopbackend.repository.CartRepository;
 import com.example.shopbackend.repository.ProductRelatedRepositories.ProductRepository;
 import com.example.shopbackend.repository.ProductRelatedRepositories.ProductVarianceRepository;
+import com.example.shopbackend.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -20,26 +23,25 @@ import java.util.List;
 public class CartService {
     private final CartMapper cartMapper;
     private final CartRepository cartRepository;
-    private final UserService userService;
-//    private final CartEntryMapper cartEntryMapper;
     private final CartEntryRepository cartEntryRepository;
     private final ProductVarianceRepository productVarianceRepository;
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     public CartService(
             CartMapper cartMapper,
             CartRepository cartRepository,
-            UserService userService,
             ProductVarianceRepository productVarianceRepository,
-//            CartEntryMapper cartEntryMapper
             CartEntryRepository cartEntryRepository,
-            ProductRepository productRepository
+            UserRepository userRepository,
+            UserMapper userMapper
     ) {
         this.cartMapper = cartMapper;
         this.cartRepository = cartRepository;
-        this.userService = userService;
-//        this.cartEntryMapper = cartEntryMapper;
         this.cartEntryRepository = cartEntryRepository;
         this.productVarianceRepository = productVarianceRepository;
+        this.userRepository = userRepository;
+        this.userMapper = userMapper;
     }
 
     public List<CartDto> getAll() {
@@ -58,7 +60,7 @@ public class CartService {
         return cartMapper.entityToDto(cartRepository.findCartByUserId(userId));
     }
 
-    public Void removeCartFromUser(int userId) {
+    public CartDto removeCartFromUser(int userId) {
         Cart cart = cartRepository.findCartByUserId(userId);
 
         if(cart == null) {
@@ -67,22 +69,26 @@ public class CartService {
 
         cart.setUser(null);
 
-        cartRepository.save(cart);
-
-        return null;
-    }
-
-    public CartDto getOneById(int id) {
-        return cartMapper.entityToDto(cartRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Cart not found", id)));
+        return cartMapper.entityToDto(cartRepository.save(cart));
     }
 
     public CartDto createCart(int userId) {
+        User user = userRepository.findById(userId);
+
+        if(user == null) {
+            throw new EntityNotFoundException("User", userId);
+        }
+
         CartDto cartDto = new CartDto();
-        cartDto.setUser(userService.getOneById(userId));
+        cartDto.setUser(userMapper.toDto(user));
         cartDto.setCartEntries(new ArrayList<>());
         cartDto.setTotalPrice(0);
 
         return cartMapper.entityToDto(cartRepository.save(cartMapper.dtoToEntity(cartDto)));
+    }
+
+    public CartDto getOneById(int id) {
+        return cartMapper.entityToDto(cartRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Cart not found", id)));
     }
 
     @Transactional
@@ -151,7 +157,6 @@ public class CartService {
         cartEntry.setQuantity(quantity);
         cartEntry.setTotalPrice(cartEntry.getPricePerPiece() * cartEntry.getQuantity());
         cartEntryRepository.save(cartEntry);
-
         cart.setTotalPrice(cart.getCartEntries().stream().map(CartEntry::getTotalPrice).reduce(0f, Float::sum));
 
         return cartMapper.entityToDto(cartRepository.save(cart));
@@ -162,6 +167,9 @@ public class CartService {
 //    }
 
     public void deleteCart(int id) {
+        Cart cart = cartRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Cart not found", id));
+        List<CartEntry> cartEntries = cart.getCartEntries();
+        cartEntries.forEach(cartEntry -> cartEntryRepository.deleteById(cartEntry.getId()));
         cartRepository.deleteById(id);
     }
 }
