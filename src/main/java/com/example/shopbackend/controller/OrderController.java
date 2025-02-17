@@ -31,7 +31,12 @@ public class OrderController {
         return new ResponseEntity<>(orderService.create(orderRequest), HttpStatus.CREATED);
     }
 
-    @DeleteMapping
+    @PostMapping("/create-many")
+    public ResponseEntity<List<OrderDto>> createMany(@RequestBody List<OrderRequest> orderRequests) throws MessagingException {
+        return new ResponseEntity<>(orderService.createMany(orderRequests), HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/delete-many")
     public ResponseEntity<Void> deleteAll() {
         orderService.deleteAll();
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

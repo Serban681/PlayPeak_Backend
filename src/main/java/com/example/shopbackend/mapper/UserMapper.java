@@ -20,9 +20,9 @@ public class UserMapper {
         userDto.setFirstName(user.getFirstName());
         userDto.setLastName(user.getLastName());
         userDto.setEmail(user.getEmail());
-        userDto.setProfileImageUrl(userDto.getProfileImageUrl());
-        userDto.setAge(userDto.getAge());
-        userDto.setGender(userDto.getGender());
+        userDto.setProfileImageUrl(user.getProfileImageUrl());
+        userDto.setAge(user.getAge());
+        userDto.setGender(user.getGender());
         userDto.setPhoneNumber(user.getPhoneNumber());
         userDto.setPassword(user.getPassword());
         userDto.setDefaultDeliveryAddress(addressMapper.toDto(user.getDefault_delivery_address()));

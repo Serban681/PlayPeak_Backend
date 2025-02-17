@@ -55,6 +55,11 @@ public class UserController {
         return new ResponseEntity<>(userService.create(userDto), HttpStatus.CREATED);
     }
 
+    @PostMapping("/create-many")
+    public ResponseEntity<List<UserDto>> createMany(@RequestBody List<UserDto> userDtos) throws NoSuchAlgorithmException {
+        return new ResponseEntity<>(userService.createMany(userDtos), HttpStatus.CREATED);
+    }
+
     @PutMapping
     public ResponseEntity<UserDto> update(@RequestBody UserDto userDto) {
         return new ResponseEntity<>(userService.update(userDto), HttpStatus.OK);
@@ -63,6 +68,13 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable int id) {
         userService.delete(id);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @DeleteMapping("/delete-all")
+    public ResponseEntity<Void> deleteAll() {
+        userService.deleteAll();
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

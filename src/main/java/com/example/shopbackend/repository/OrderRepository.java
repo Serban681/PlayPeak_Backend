@@ -11,6 +11,8 @@ import java.util.List;
 public interface OrderRepository extends CrudRepository<Order, Integer> {
     List<Order> findAll();
 
+    Order findById(int id);
+
     @Query("SELECT o FROM Order o WHERE o.user.id = :userId")
     List<Order> findAllByUserId(int userId);
 

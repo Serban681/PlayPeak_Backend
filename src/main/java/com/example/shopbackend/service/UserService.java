@@ -100,6 +100,20 @@ public class UserService {
         return userMapper.toDto(userRepository.save(user));
     }
 
+    public List<UserDto> createMany(List<UserDto> userDtos) throws NoSuchAlgorithmException {
+        List<UserDto> newUserDtos = new ArrayList<>();
+
+        userDtos.forEach(userDto -> {
+            try {
+                newUserDtos.add(create(userDto));
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        return newUserDtos;
+    }
+
     public UserDto update(UserDto userDto) {
         AddressDto defaultDeliveryAddress = userDto.getDefaultDeliveryAddress();
         defaultDeliveryAddress.setId(0);
@@ -118,8 +132,18 @@ public class UserService {
     public void delete(int id) {
         orderService.deleteByUserId(id);
         CartDto cartDto = cartService.removeCartFromUser(id);
-        cartService.deleteCart(cartDto.getId());
+        if(cartDto != null) {
+            cartService.deleteCart(cartDto.getId());
+        }
         userRepository.deleteById(id);
+    }
+
+    public void deleteAll() {
+        List<User> users = userRepository.findAll();
+
+        users.forEach(user -> {
+            delete(user.getId());
+        });
     }
 
     private void setUserDto(UserDto userDto) {

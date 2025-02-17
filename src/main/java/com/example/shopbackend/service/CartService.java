@@ -63,13 +63,13 @@ public class CartService {
     public CartDto removeCartFromUser(int userId) {
         Cart cart = cartRepository.findCartByUserId(userId);
 
-        if(cart == null) {
-            throw new EntityNotFoundException("Cart with user id not found", userId);
+        if(cart != null) {
+            cart.setUser(null);
+
+            return cartMapper.entityToDto(cartRepository.save(cart));
         }
 
-        cart.setUser(null);
-
-        return cartMapper.entityToDto(cartRepository.save(cart));
+        return null;
     }
 
     public CartDto createCart(int userId) {
@@ -167,9 +167,11 @@ public class CartService {
 //    }
 
     public void deleteCart(int id) {
-        Cart cart = cartRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Cart not found", id));
-        List<CartEntry> cartEntries = cart.getCartEntries();
-        cartEntries.forEach(cartEntry -> cartEntryRepository.deleteById(cartEntry.getId()));
-        cartRepository.deleteById(id);
+        Cart cart = cartRepository.findById(id).orElse(null);
+        if(cart != null) {
+            List<CartEntry> cartEntries = cart.getCartEntries();
+            cartEntries.forEach(cartEntry -> cartEntryRepository.deleteById(cartEntry.getId()));
+            cartRepository.deleteById(id);
+        }
     }
 }

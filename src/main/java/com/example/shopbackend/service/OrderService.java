@@ -3,6 +3,7 @@ package com.example.shopbackend.service;
 import com.example.shopbackend.dto.OrderDto;
 import com.example.shopbackend.dto.OrderRequest;
 import com.example.shopbackend.entity.Order;
+import com.example.shopbackend.exceptions.EntityNotFoundException;
 import com.example.shopbackend.mapper.AddressMapper;
 import com.example.shopbackend.mapper.OrderRelatedMappers.CartMapper;
 import com.example.shopbackend.mapper.OrderRelatedMappers.OrderMapper;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrderService {
@@ -96,12 +98,31 @@ public class OrderService {
         return orderMapper.entityToDto(orderRepository.save(order));
     }
 
+    public List<OrderDto> createMany(List<OrderRequest> orderRequests) throws MessagingException {
+        return orderRequests.stream().map(orderRequest -> {
+            Order order = new Order();
+
+            order.setUser(userRepository.findById(orderRequest.getUserId()));
+            order.setCart(cartMapper.dtoToEntity(orderRequest.getCart()));
+            order.setPaymentType(orderRequest.getPaymentType());
+            order.setDeliveryAddress(addressMapper.toEntity(orderRequest.getDeliveryAddress()));
+            order.setBillingAddress(addressMapper.toEntity(orderRequest.getBillingAddress()));
+            order.setOrderDate(orderRequest.getOrderDate());
+
+            return orderMapper.entityToDto(orderRepository.save(order));
+        }).toList();
+    }
+
     public void deleteAll() {
+        List<Order> orders = orderRepository.findAll();
         orderRepository.deleteAll();
+        orders.forEach(order -> cartService.deleteCart(order.getCart().getId()));
     }
 
     public void delete(Integer id) {
+        Order order = orderRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Order", id));
         orderRepository.deleteById(id);
+        cartService.deleteCart(order.getCart().getId());
     }
 
     public void deleteByUserId(Integer userId) {
