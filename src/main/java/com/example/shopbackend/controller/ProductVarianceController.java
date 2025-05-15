@@ -32,4 +32,9 @@ public class ProductVarianceController {
     public ResponseEntity<ProductVarianceRequest> updateQuantity(@PathVariable int id, @RequestParam int quantity) {
         return new ResponseEntity<>(productVarianceService.updateQuantity(id, quantity), HttpStatus.OK);
     }
+
+    @PutMapping("/add-quantity/{id}")
+    public ResponseEntity<ProductVarianceRequest> addQuantity(@PathVariable int id, @RequestParam int quantity) {
+        return new ResponseEntity<>(productVarianceService.addQuantity(id, quantity), HttpStatus.OK);
+    }
 }

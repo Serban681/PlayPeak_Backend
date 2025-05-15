@@ -4,6 +4,7 @@ import com.example.shopbackend.dto.*;
 import com.example.shopbackend.entity.Product;
 import com.example.shopbackend.entity.ProductAttributeAndAttributeValues;
 import com.example.shopbackend.entity.ProductSortMethod;
+import com.example.shopbackend.entity.ProductVariance;
 import com.example.shopbackend.exceptions.EntityNotFoundException;
 import com.example.shopbackend.mapper.ProductRelatedMappers.ProductAttributeAndAttributeValuesMapper;
 import com.example.shopbackend.mapper.ProductRelatedMappers.ProductMapper;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -44,41 +47,95 @@ public class ProductService {
     public List<CategorizedProductsResponseDto> getAll(SearchFiltersDto searchFiltersDto) {
         switch (ProductSortMethod.valueOf(searchFiltersDto.getSortMethod())) {
             case PRICE_ASC -> {
-                List<ProductRequest> products = productRepository.findAllByOrderByPriceAsc().stream().map(product -> productMapper.dtoToRequest(productMapper.toDto(product))).toList();
+                List<ProductRequest> products = productRepository
+                        .findAll().stream()
+                        .map(product -> productMapper.dtoToRequest(productMapper.toDto(product)))
+                        .sorted(Comparator.comparing(ProductRequest::getPrice).reversed()
+                                .thenComparing(ProductRequest::isInStock).reversed()
+                                .thenComparing(ProductRequest::getId))
+                        .toList();
 
                 return filterProductsBasedOnCategory(products, searchFiltersDto.getCategories());
             }
             case PRICE_DESC -> {
-                List<ProductRequest> products = productRepository.findAllByOrderByPriceDesc().stream().map(product -> productMapper.dtoToRequest(productMapper.toDto(product))).collect(Collectors.toList());
+                List<ProductRequest> products = productRepository
+                        .findAll().stream()
+                        .map(product -> productMapper.dtoToRequest(productMapper.toDto(product)))
+                        .sorted(Comparator.comparing(ProductRequest::getPrice)
+                                .thenComparing(ProductRequest::isInStock).reversed()
+                                .thenComparing(ProductRequest::getId))
+                        .collect(Collectors.toList());
 
                 return filterProductsBasedOnCategory(products, searchFiltersDto.getCategories());
             }
             case NAME_ASC -> {
-                List<ProductRequest> products = productRepository.findAllByOrderByNameAsc().stream().map(product -> productMapper.dtoToRequest(productMapper.toDto(product))).collect(Collectors.toList());
+                List<ProductRequest> products = productRepository
+                        .findAll().stream()
+                        .map(product -> productMapper.dtoToRequest(productMapper.toDto(product)))
+                        .sorted(Comparator.comparing(ProductRequest::isInStock).reversed()
+                                .thenComparing(ProductRequest::getId))
+                        .collect(Collectors.toList());
 
                 return filterProductsBasedOnCategory(products, searchFiltersDto.getCategories());
             }
             case NAME_DESC -> {
-                List<ProductRequest> products = productRepository.findAllByOrderByNameDesc().stream().map(product -> productMapper.dtoToRequest(productMapper.toDto(product))).collect(Collectors.toList());
+                List<ProductRequest> products = productRepository
+                        .findAll().stream()
+                        .map(product -> productMapper.dtoToRequest(productMapper.toDto(product)))
+                        .sorted(Comparator.comparing(ProductRequest::isInStock).reversed()
+                                .thenComparing(ProductRequest::getId))
+                        .collect(Collectors.toList());
 
                 return filterProductsBasedOnCategory(products, searchFiltersDto.getCategories());
             }
             case NEWEST -> {
-                List<ProductRequest> products = productRepository.findAllByOrderByAddedDateDesc().stream().map(product -> productMapper.dtoToRequest(productMapper.toDto(product))).collect(Collectors.toList());
+                List<ProductRequest> products = productRepository
+                        .findAll().stream()
+                        .map(product -> productMapper.dtoToRequest(productMapper.toDto(product)))
+                        .sorted(Comparator.comparing(ProductRequest::isInStock).reversed()
+                                .thenComparing(ProductRequest::getId))
+                        .collect(Collectors.toList());
 
                 return filterProductsBasedOnCategory(products, searchFiltersDto.getCategories());
             }
             case OLDEST -> {
-                List<ProductRequest> products = productRepository.findAllByOrderByAddedDate().stream().map(product -> productMapper.dtoToRequest(productMapper.toDto(product))).collect(Collectors.toList());
+                List<ProductRequest> products = productRepository
+                        .findAll().stream()
+                        .map(product -> productMapper.dtoToRequest(productMapper.toDto(product)))
+                        .sorted(Comparator.comparing(ProductRequest::isInStock).reversed()
+                                .thenComparing(ProductRequest::getId))
+                        .collect(Collectors.toList());
 
                 return filterProductsBasedOnCategory(products, searchFiltersDto.getCategories());
             }
             default -> {
-                List<ProductRequest> products = productRepository.findAll().stream().map(product -> productMapper.dtoToRequest(productMapper.toDto(product))).collect(Collectors.toList());
+                List<ProductRequest> products = productRepository
+                        .findAll().stream()
+                        .map(product -> productMapper.dtoToRequest(productMapper.toDto(product)))
+                        .sorted(Comparator.comparing(ProductRequest::isInStock).reversed()
+                                .thenComparing(ProductRequest::getId))
+                        .collect(Collectors.toList());
 
                 return filterProductsBasedOnCategory(products, searchFiltersDto.getCategories());
             }
         }
+    }
+
+    public List<ProductRequest> searchProducts(String productName) {
+        if(productName.isEmpty()) {
+            return productRepository
+                    .findAll().stream()
+                    .map(product -> productMapper.dtoToRequest(productMapper.toDto(product)))
+                    .sorted(Comparator.comparing(ProductRequest::getName)
+                            .thenComparing(ProductRequest::getId))
+                    .collect(Collectors.toList());
+        }
+
+        return productRepository.findProductsByNameContainingIgnoreCase(productName).stream()
+                .map(product -> productMapper.dtoToRequest(productMapper.toDto(product)))
+                .sorted(Comparator.comparing(ProductRequest::getName)
+                        .thenComparing(ProductRequest::getId))
+                .collect(Collectors.toList());
     }
 
     public ProductRequest getOneById(int id) {
@@ -89,6 +146,7 @@ public class ProductService {
         List<Product> products = productRepository.findProductsByName(productRequest.getName());
 
         productRequest.setAddedDate(LocalDate.now());
+        productRequest.setInStock(true);
 
         ProductDto productDto = productMapper.requestToDto(productRequest);
 
@@ -149,5 +207,27 @@ public class ProductService {
         }
 
         return categorizedProducts;
+    }
+
+    public void checkStocksStillAvailable(int productId) {
+        Product product = productRepository.findProductById(productId);
+        List<ProductVarianceRequest> productVariances = productVarianceService.getByProductId(productId);
+
+
+        for (ProductVarianceRequest productVariance : productVariances) {
+            if(productVariance.getQuantity() > 0) {
+                if(!product.isInStock()) {
+                    product.setInStock(true);
+                    productRepository.save(product);
+                }
+
+                return;
+            }
+        }
+
+        if(product.isInStock()) {
+            product.setInStock(false);
+            productRepository.save(product);
+        }
     }
 }

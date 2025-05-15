@@ -1,5 +1,6 @@
 package com.example.shopbackend.repository;
 
+import com.example.shopbackend.entity.Role;
 import com.example.shopbackend.entity.User;
 import org.springframework.data.repository.CrudRepository;
 
@@ -9,4 +10,5 @@ public interface UserRepository extends CrudRepository<User, Integer> {
     List<User> findAll();
     User findById(int id);
     User findByEmail(String email);
+    int countByRole(Role role);
 }

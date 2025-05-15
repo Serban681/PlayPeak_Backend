@@ -1,6 +1,9 @@
 package com.example.shopbackend.service;
 
 import com.example.shopbackend.dto.*;
+import com.example.shopbackend.entity.Address;
+import com.example.shopbackend.entity.Gender;
+import com.example.shopbackend.entity.Role;
 import com.example.shopbackend.entity.User;
 import com.example.shopbackend.exceptions.EntityNotFoundException;
 import com.example.shopbackend.exceptions.InvalidEmailOrPasswordException;
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
@@ -86,12 +90,20 @@ public class UserService {
         return userMapper.toDto(user);
     }
 
-    public List<SimpleUserDto> getAll() {
+    public List<SimpleUserDto> getAllSimple() {
         return StreamSupport.stream(userRepository.findAll().spliterator(), false).map(userMapper::toSimpleDto).toList();
+    }
+
+    public List<UserDto> getAll() {
+        return userRepository.findAll().stream().map(userMapper::toDto).collect(Collectors.toList());
     }
 
     public UserDto create(UserDto userDto) throws NoSuchAlgorithmException {
         setUserDto(userDto);
+
+        if(userDto.getRegistrationDate() == null) {
+            userDto.setRegistrationDate(java.time.LocalDate.now());
+        }
 
         userDto.setPassword(PasswordEncoder.encodePassword(userDto.getPassword()));
 
@@ -144,6 +156,35 @@ public class UserService {
         users.forEach(user -> {
             delete(user.getId());
         });
+    }
+
+    public void initializeDefaultAdmin() throws NoSuchAlgorithmException {
+        if(userRepository.countByRole(Role.ADMIN) == 0) {
+            User user = new User();
+
+            user.setFirstName("Admin");
+            user.setLastName("Admin");
+            user.setRole(Role.ADMIN);
+            user.setProfileImageUrl("https://wallpapers-clan.com/wp-content/uploads/2022/05/meme-pfp-15.jpg");
+            user.setEmail("admin@coolshop.com");
+            user.setPhoneNumber("000000000");
+            user.setGender(Gender.NOT_MENTIONED);
+            user.setAge(20);
+            user.setPassword(PasswordEncoder.encodePassword("admin"));
+            user.setRegistrationDate(java.time.LocalDate.now());
+
+            AddressDto address = new AddressDto();
+            address.setStreetLine("Cool Street");
+            address.setPostalCode(123456);
+            address.setCity("Miami");
+            address.setCounty("Florida");
+            address.setCountry("USA");
+
+            user.setDefault_delivery_address(addressMapper.toEntity(addressService.create(address)));
+            user.setDefault_billing_address(addressMapper.toEntity(addressService.create(address)));
+
+            userRepository.save(user);
+        }
     }
 
     private void setUserDto(UserDto userDto) {

@@ -2,6 +2,7 @@ package com.example.shopbackend.controller;
 
 import com.example.shopbackend.dto.OrderDto;
 import com.example.shopbackend.dto.OrderRequest;
+import com.example.shopbackend.dto.SimpleOrderRequest;
 import com.example.shopbackend.entity.Order;
 import com.example.shopbackend.service.OrderService;
 import jakarta.mail.MessagingException;
@@ -34,6 +35,16 @@ public class OrderController {
     @PostMapping("/create-many")
     public ResponseEntity<List<OrderDto>> createMany(@RequestBody List<OrderRequest> orderRequests) throws MessagingException {
         return new ResponseEntity<>(orderService.createMany(orderRequests), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/create-mock")
+    public ResponseEntity<OrderDto> createMock(@RequestBody SimpleOrderRequest simpleOrderRequest) {
+        return new ResponseEntity<>(orderService.createMockOrder(simpleOrderRequest), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/create-many-mock")
+    public ResponseEntity<List<OrderDto>> createMock(@RequestBody List<SimpleOrderRequest> simpleOrderRequests) {
+        return new ResponseEntity<>(orderService.createManyMockOrders(simpleOrderRequests), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/delete-many")

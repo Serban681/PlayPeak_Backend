@@ -14,6 +14,7 @@ import java.util.List;
 public class ProductDto {
     private int id;
     private String name;
+    private boolean inStock;
     private float price;
     private String photoUrl;
     private LocalDate addedDate;

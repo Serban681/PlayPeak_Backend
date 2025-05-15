@@ -5,6 +5,7 @@ import com.example.shopbackend.entity.Cart;
 import com.example.shopbackend.entity.CartEntry;
 import com.example.shopbackend.entity.ProductVariance;
 import com.example.shopbackend.entity.User;
+import com.example.shopbackend.exceptions.EmptyStockException;
 import com.example.shopbackend.exceptions.EntityNotFoundException;
 import com.example.shopbackend.mapper.OrderRelatedMappers.CartMapper;
 import com.example.shopbackend.mapper.UserMapper;
@@ -27,6 +28,7 @@ public class CartService {
     private final ProductVarianceRepository productVarianceRepository;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final ProductVarianceService productVarianceService;
 
     public CartService(
             CartMapper cartMapper,
@@ -34,7 +36,8 @@ public class CartService {
             ProductVarianceRepository productVarianceRepository,
             CartEntryRepository cartEntryRepository,
             UserRepository userRepository,
-            UserMapper userMapper
+            UserMapper userMapper,
+            ProductVarianceService productVarianceService
     ) {
         this.cartMapper = cartMapper;
         this.cartRepository = cartRepository;
@@ -42,6 +45,7 @@ public class CartService {
         this.productVarianceRepository = productVarianceRepository;
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.productVarianceService = productVarianceService;
     }
 
     public List<CartDto> getAll() {
@@ -58,6 +62,16 @@ public class CartService {
         }
 
         return cartMapper.entityToDto(cartRepository.findCartByUserId(userId));
+    }
+
+    public void updateAvailableQuantityOfOrderedProducts(int cartId) {
+        Cart cart = cartRepository.findCartById(cartId);
+
+        cart.getCartEntries().forEach(cartEntry -> {
+            ProductVariance productVariance = cartEntry.getProductVariance();
+
+            productVarianceService.subtractQuantity(productVariance.getId(), cartEntry.getQuantity());
+        });
     }
 
     public CartDto removeCartFromUser(int userId) {
@@ -87,6 +101,15 @@ public class CartService {
         return cartMapper.entityToDto(cartRepository.save(cartMapper.dtoToEntity(cartDto)));
     }
 
+    public CartDto createMockCart() {
+        Cart cart = new Cart();
+        cart.setUser(null);
+        cart.setCartEntries(new ArrayList<>());
+        cart.setTotalPrice(0);
+
+        return cartMapper.entityToDto(cartRepository.save(cart));
+    }
+
     public CartDto getOneById(int id) {
         return cartMapper.entityToDto(cartRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Cart not found", id)));
     }
@@ -103,7 +126,7 @@ public class CartService {
 
         CartEntry cartEntry = cart.getCartEntries().stream().filter(entry -> entry.getProductVariance().getId() == productVarianceId).findFirst().orElse(null);
 
-        if(cartEntry != null) {
+        if (cartEntry != null && productVariance.getQuantity() - cartEntry.getQuantity() > 0) {
             cartEntry.setQuantity(cartEntry.getQuantity() + 1);
             cartEntry.setTotalPrice(cartEntry.getPricePerPiece() * cartEntry.getQuantity());
 
@@ -112,22 +135,24 @@ public class CartService {
             cart.setTotalPrice(cart.getTotalPrice() + cartEntry.getPricePerPiece());
 
             return cartMapper.entityToDto(cartRepository.save(cart));
+        } else if(cartEntry == null && productVariance.getQuantity() > 0) {
+            cartEntry = new CartEntry();
+            cartEntry.setProductVariance(productVariance);
+            cartEntry.setQuantity(1);
+            cartEntry.setPricePerPiece(cartEntry.getProductVariance().getProduct().getPrice());
+            cartEntry.setTotalPrice(cartEntry.getPricePerPiece() * cartEntry.getQuantity());
+
+            CartEntry savedCartEntry = cartEntryRepository.save(cartEntry);
+
+            List<CartEntry> currentCartEntries = cart.getCartEntries();
+            currentCartEntries.add(savedCartEntry);
+            cart.setCartEntries(currentCartEntries);
+            cart.setTotalPrice(cart.getTotalPrice() + cartEntry.getTotalPrice());
+
+            return cartMapper.entityToDto(cartRepository.save(cart));
+        } else {
+            throw new EmptyStockException();
         }
-
-        cartEntry = new CartEntry();
-        cartEntry.setProductVariance(productVariance);
-        cartEntry.setQuantity(1);
-        cartEntry.setPricePerPiece(cartEntry.getProductVariance().getProduct().getPrice());
-        cartEntry.setTotalPrice(cartEntry.getPricePerPiece() * cartEntry.getQuantity());
-
-        CartEntry savedCartEntry = cartEntryRepository.save(cartEntry);
-
-        List<CartEntry> currentCartEntries = cart.getCartEntries();
-        currentCartEntries.add(savedCartEntry);
-        cart.setCartEntries(currentCartEntries);
-        cart.setTotalPrice(cart.getTotalPrice() + cartEntry.getTotalPrice());
-
-        return cartMapper.entityToDto(cartRepository.save(cart));
     }
 
     public CartDto removeProductFromCart(int cartEntryId) {

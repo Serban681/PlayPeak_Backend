@@ -1,8 +1,10 @@
 package com.example.shopbackend.service;
 
+import com.example.shopbackend.dto.CartDto;
 import com.example.shopbackend.dto.OrderDto;
 import com.example.shopbackend.dto.OrderRequest;
-import com.example.shopbackend.entity.Order;
+import com.example.shopbackend.dto.SimpleOrderRequest;
+import com.example.shopbackend.entity.*;
 import com.example.shopbackend.exceptions.EntityNotFoundException;
 import com.example.shopbackend.mapper.AddressMapper;
 import com.example.shopbackend.mapper.OrderRelatedMappers.CartMapper;
@@ -14,8 +16,10 @@ import jakarta.mail.MessagingException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -27,6 +31,7 @@ public class OrderService {
     private final AddressMapper addressMapper;
     private final EmailService emailService;
     private final CartService cartService;
+    private final ProductVarianceService productVarianceService;
 
     private OrderService(OrderRepository orderRepository,
                          OrderMapper orderMapper,
@@ -35,7 +40,8 @@ public class OrderService {
                          UserMapper userMapper,
                          AddressMapper addressMapper,
                          EmailService emailService,
-                         CartService cartService) {
+                         CartService cartService,
+                         ProductVarianceService productVarianceService) {
         this.orderRepository = orderRepository;
         this.orderMapper = orderMapper;
         this.cartMapper = cartMapper;
@@ -44,6 +50,7 @@ public class OrderService {
         this.addressMapper = addressMapper;
         this.emailService = emailService;
         this.cartService = cartService;
+        this.productVarianceService = productVarianceService;
     }
 
     public List<OrderDto> getAll() {
@@ -52,12 +59,15 @@ public class OrderService {
 
     public OrderDto create(OrderRequest orderRequest) throws MessagingException {
         Order order = new Order();
+
         order.setUser(userRepository.findById(orderRequest.getUserId()));
         order.setCart(cartMapper.dtoToEntity(orderRequest.getCart()));
         order.setPaymentType(orderRequest.getPaymentType());
         order.setDeliveryAddress(addressMapper.toEntity(orderRequest.getDeliveryAddress()));
         order.setBillingAddress(addressMapper.toEntity(orderRequest.getBillingAddress()));
         order.setOrderDate(LocalDate.now());
+
+        cartService.updateAvailableQuantityOfOrderedProducts(orderRequest.getCart().getId());
 
         String orderedProducts = "";
 
@@ -111,6 +121,29 @@ public class OrderService {
 
             return orderMapper.entityToDto(orderRepository.save(order));
         }).toList();
+    }
+
+    public OrderDto createMockOrder(SimpleOrderRequest simpleOrderRequest) {
+        Order order = new Order();
+        User user = userRepository.findById(simpleOrderRequest.getUserId());
+
+        CartDto cartDto = cartService.createMockCart();
+        cartDto = cartService.addProductToCart(
+                productVarianceService.getByProductId(simpleOrderRequest.getProductId()).getFirst().getId(),
+                cartDto.getId());
+
+        order.setUser(user);
+        order.setCart(cartMapper.dtoToEntity(cartDto));
+        order.setPaymentType(PaymentType.CASH);
+        order.setDeliveryAddress(user.getDefault_delivery_address());
+        order.setBillingAddress(user.getDefault_billing_address());
+        order.setOrderDate(simpleOrderRequest.getDate());
+
+        return orderMapper.entityToDto(orderRepository.save(order));
+    }
+
+    public List<OrderDto> createManyMockOrders(List<SimpleOrderRequest> simpleOrderRequests) {
+        return simpleOrderRequests.stream().map(this::createMockOrder).collect(Collectors.toList());
     }
 
     public void deleteAll() {

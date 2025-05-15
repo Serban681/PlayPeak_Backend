@@ -13,6 +13,7 @@ public class ProductRequest {
     private String name;
     private float price;
     private String photoUrl;
+    private boolean inStock;
     private LocalDate addedDate;
     private String category;
     private List<ProductAttributesAndAttributeValuesRequest> attributesAndAttributeValues;

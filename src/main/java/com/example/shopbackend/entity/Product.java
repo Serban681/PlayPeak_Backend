@@ -23,7 +23,8 @@ public class Product {
     private String photoUrl;
     @Column(nullable = false)
     private float price;
-//    private int availableQuantity = 0;
+    @Column(nullable=false)
+    private boolean inStock;
     @Column(nullable = false)
     @Temporal(TemporalType.DATE)
     private LocalDate addedDate;

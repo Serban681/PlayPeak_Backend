@@ -3,6 +3,7 @@ package com.example.shopbackend.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -22,6 +23,10 @@ public class User {
     @Column(name="last_name", nullable = false)
     private String lastName;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     @Column(name="profile_image_url")
     private String profileImageUrl;
 
@@ -40,6 +45,9 @@ public class User {
 
     @Column(nullable = false)
     private String password;
+
+    @Column(name="registration_date", nullable = false)
+    private LocalDate registrationDate;
 
     @ManyToOne
     @JoinColumn(name="default_delivery_address_id", nullable = false)

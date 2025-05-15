@@ -20,9 +20,14 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @PostMapping("/search")
+    @PostMapping("/search-category")
     public ResponseEntity<List<CategorizedProductsResponseDto>> getAll(@RequestBody SearchFiltersDto searchFiltersDto) {
         return new ResponseEntity<>(productService.getAll(searchFiltersDto), HttpStatus.OK);
+    }
+
+    @PostMapping("/search-name")
+    public ResponseEntity<List<ProductRequest>> searchByName(@RequestParam String name) {
+        return new ResponseEntity<>(productService.searchProducts(name), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

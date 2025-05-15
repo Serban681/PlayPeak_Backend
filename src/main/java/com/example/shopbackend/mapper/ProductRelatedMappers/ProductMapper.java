@@ -28,6 +28,8 @@ public class ProductMapper {
         productDto.setAddedDate(product.getAddedDate());
         productDto.setCategory(categoryMapper.toDto(product.getCategory()));
         productDto.setAttributesAndAttributeValues(product.getAttributesAndAttributeValues().stream().map(productAttributeAndAttributeValuesMapper::toDto).collect(Collectors.toList()));
+        productDto.setInStock(product.isInStock());
+
         return productDto;
     }
 
@@ -38,9 +40,10 @@ public class ProductMapper {
         product.setPhotoUrl(productDto.getPhotoUrl());
         product.setAddedDate(productDto.getAddedDate());
         product.setPrice(productDto.getPrice());
-
         product.setCategory(categoryMapper.toEntity(productDto.getCategory()));
         product.setAttributesAndAttributeValues(productDto.getAttributesAndAttributeValues().stream().map(productAttributeAndAttributeValuesMapper::toEntity).collect(Collectors.toList()));
+        product.setInStock(productDto.isInStock());
+
         return product;
     }
 
@@ -57,6 +60,7 @@ public class ProductMapper {
                         .stream()
                         .map(productAttributeAndAttributeValuesMapper::dtoToRequest)
                         .collect(Collectors.toList()));
+        productRequest.setInStock(productDto.isInStock());
         return productRequest;
     }
 
@@ -70,7 +74,7 @@ public class ProductMapper {
         CategoryDto categoryDto = new CategoryDto();
         categoryDto.setName(productRequest.getCategory());
         productDto.setCategory(categoryDto);
-
+        productDto.setInStock(productRequest.isInStock());
         productDto.setAddedDate(productRequest.getAddedDate());
 
         productDto.setAttributesAndAttributeValues(

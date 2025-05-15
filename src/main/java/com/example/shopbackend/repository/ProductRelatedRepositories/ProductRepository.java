@@ -12,6 +12,8 @@ public interface ProductRepository extends CrudRepository<Product, Integer> {
     List<Product> findAllByOrderByPriceAsc();
     Product findProductById(int id);
 
+    List<Product> findProductsByNameContainingIgnoreCase(String name);
+
     List<Product> findAllByOrderByPriceDesc();
 
     List<Product> findAllByOrderByNameAsc();

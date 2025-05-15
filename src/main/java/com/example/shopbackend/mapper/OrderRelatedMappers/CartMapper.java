@@ -29,7 +29,8 @@ public class CartMapper {
     public Cart dtoToEntity(CartDto cartDto) {
         Cart cart = new Cart();
         cart.setId(cartDto.getId());
-        cart.setUser(userMapper.toEntity(cartDto.getUser()));
+        if(cartDto.getUser() != null)
+            cart.setUser(userMapper.toEntity(cartDto.getUser()));
         cart.setCartEntries(cartDto.getCartEntries().stream().map(cartEntryMapper::toEntity).toList());
         cart.setTotalPrice(cartDto.getTotalPrice());
 

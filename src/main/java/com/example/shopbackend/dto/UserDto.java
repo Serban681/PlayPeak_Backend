@@ -1,8 +1,11 @@
 package com.example.shopbackend.dto;
 
 import com.example.shopbackend.entity.Gender;
+import com.example.shopbackend.entity.Role;
 import lombok.Data;
 import lombok.ToString;
+
+import java.time.LocalDate;
 
 @ToString
 @Data
@@ -13,6 +16,8 @@ public class UserDto {
 
     private String lastName;
 
+    private Role role;
+
     private String profileImageUrl;
 
     private String email;
@@ -22,6 +27,8 @@ public class UserDto {
     private Gender gender;
 
     private int age;
+
+    private LocalDate registrationDate;
 
     private String password;
 

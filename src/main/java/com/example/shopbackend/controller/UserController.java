@@ -41,8 +41,13 @@ public class UserController {
     }
 
     @GetMapping
-    public List<SimpleUserDto> getAll() {
+    public List<UserDto> getAll() {
         return userService.getAll();
+    }
+
+    @GetMapping("/simple")
+    public List<SimpleUserDto> getAllSimple() {
+        return userService.getAllSimple();
     }
 
     @GetMapping("/{id}")
