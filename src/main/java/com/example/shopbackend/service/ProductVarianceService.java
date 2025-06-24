@@ -52,6 +52,16 @@ public class ProductVarianceService {
         generateVariations(productDto);
     }
 
+    public ProductVarianceRequest getById(int id) {
+        ProductVariance productVariance = productVarianceRepository.findById(id);
+
+        if(productVariance == null) {
+            throw new EntityNotFoundException("Product Variance", id);
+        }
+
+        return productVarianceMapper.entityToRequest(productVariance);
+    }
+
     public ProductVarianceRequest updateQuantity(int id, int quantity) {
         ProductVariance productVariance = productVarianceRepository.findById(id);
 

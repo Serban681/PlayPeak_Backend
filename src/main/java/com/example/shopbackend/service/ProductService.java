@@ -72,7 +72,8 @@ public class ProductService {
                 List<ProductRequest> products = productRepository
                         .findAll().stream()
                         .map(product -> productMapper.dtoToRequest(productMapper.toDto(product)))
-                        .sorted(Comparator.comparing(ProductRequest::isInStock).reversed()
+                        .sorted(Comparator.comparing(ProductRequest::getName).reversed()
+                                .thenComparing(ProductRequest::isInStock).reversed()
                                 .thenComparing(ProductRequest::getId))
                         .collect(Collectors.toList());
 
@@ -82,7 +83,8 @@ public class ProductService {
                 List<ProductRequest> products = productRepository
                         .findAll().stream()
                         .map(product -> productMapper.dtoToRequest(productMapper.toDto(product)))
-                        .sorted(Comparator.comparing(ProductRequest::isInStock).reversed()
+                        .sorted(Comparator.comparing(ProductRequest::getName)
+                                .thenComparing(ProductRequest::isInStock).reversed()
                                 .thenComparing(ProductRequest::getId))
                         .collect(Collectors.toList());
 
@@ -92,7 +94,8 @@ public class ProductService {
                 List<ProductRequest> products = productRepository
                         .findAll().stream()
                         .map(product -> productMapper.dtoToRequest(productMapper.toDto(product)))
-                        .sorted(Comparator.comparing(ProductRequest::isInStock).reversed()
+                        .sorted(Comparator.comparing(ProductRequest::getAddedDate).reversed()
+                                .thenComparing(ProductRequest::isInStock).reversed()
                                 .thenComparing(ProductRequest::getId))
                         .collect(Collectors.toList());
 
@@ -102,7 +105,8 @@ public class ProductService {
                 List<ProductRequest> products = productRepository
                         .findAll().stream()
                         .map(product -> productMapper.dtoToRequest(productMapper.toDto(product)))
-                        .sorted(Comparator.comparing(ProductRequest::isInStock).reversed()
+                        .sorted(Comparator.comparing(ProductRequest::getAddedDate)
+                                .thenComparing(ProductRequest::isInStock).reversed()
                                 .thenComparing(ProductRequest::getId))
                         .collect(Collectors.toList());
 

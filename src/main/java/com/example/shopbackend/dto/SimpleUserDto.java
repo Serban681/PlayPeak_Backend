@@ -19,6 +19,10 @@ public class SimpleUserDto {
 
     private String email;
 
+    private int age;
+
+    private String gender;
+
     private String phoneNumber;
 
     private LocalDate registrationDate;

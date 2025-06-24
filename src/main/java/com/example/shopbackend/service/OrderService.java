@@ -81,7 +81,7 @@ public class OrderService {
 
         emailService.sendEmail(
                 order.getUser().getEmail(),
-                "order@cool-shop.com",
+                "order@playpeak.com",
                 "Order confirmation",
                 "<div style=\"font-family: Arial, sans-serif; color: #333;\">" +
                         "<h1 style=\"color: #F8B8ED;\">Order Confirmation</h1>" +
@@ -98,9 +98,9 @@ public class OrderService {
                         order.getBillingAddress().getCity() + ", " +
                         order.getBillingAddress().getCountry() + "</p>" +
                         "<p>Your order will be delivered in 3-5 business days.</p>" +
-                        "<p><strong>Total price: </strong>" + order.getCart().getTotalPrice() + "$</p>" +
+                        "<p><strong>Total price: </strong>" + String.format("%.2f", order.getCart().getTotalPrice()) + "$</p>" +
                         "<p style=\"font-size: 12px; color: #888;\">If you have any questions, feel free to contact our support team.</p>" +
-                        "<p>Best regards,<br/>Cool Shop Team</p>" +
+                        "<p>Best regards,<br/>PlayPeak Team</p>" +
                         "</div>"
         );
 

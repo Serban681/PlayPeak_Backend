@@ -72,14 +72,14 @@ public class UserService {
     public void sendResetPasswordEmail(String email) throws MessagingException {
         User user = userRepository.findByEmail(email);
 
-        emailService.sendEmail(email, "reset-pass@cool-shop.com", "Reset Password",
+        emailService.sendEmail(email, "reset-pass@playpeak.com", "Reset Password",
                 "<div style=\"font-family: Arial, sans-serif; color: #333;\">" +
                         "<h1 style=\"color: #F8B8ED;\">Reset Password</h1>" +
                         "<p>Dear User,</p>" +
                         "<p>To reset your password, click the link below:</p>" +
                         "<a href=\"http://localhost:3000/reset-password/" + user.getId() + "\">Reset password</a>" +
                         "<p>If you didn't request a password reset, ignore this email.</p>" +
-                        "<p>Best regards,<br/>Cool Shop Team</p>" +
+                        "<p>Best regards,<br/>PlayPeak Team</p>" +
                         "</div>"
                 );
     }
@@ -100,6 +100,7 @@ public class UserService {
 
     public UserDto create(UserDto userDto) throws NoSuchAlgorithmException {
         setUserDto(userDto);
+        userDto.setRole(Role.USER);
 
         if(userDto.getRegistrationDate() == null) {
             userDto.setRegistrationDate(java.time.LocalDate.now());
@@ -166,7 +167,7 @@ public class UserService {
             user.setLastName("Admin");
             user.setRole(Role.ADMIN);
             user.setProfileImageUrl("https://wallpapers-clan.com/wp-content/uploads/2022/05/meme-pfp-15.jpg");
-            user.setEmail("admin@coolshop.com");
+            user.setEmail("admin@playpeak.com");
             user.setPhoneNumber("000000000");
             user.setGender(Gender.NOT_MENTIONED);
             user.setAge(20);
@@ -174,7 +175,7 @@ public class UserService {
             user.setRegistrationDate(java.time.LocalDate.now());
 
             AddressDto address = new AddressDto();
-            address.setStreetLine("Cool Street");
+            address.setStreetLine("Play Street");
             address.setPostalCode(123456);
             address.setCity("Miami");
             address.setCounty("Florida");

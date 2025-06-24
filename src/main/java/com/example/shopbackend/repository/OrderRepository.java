@@ -13,6 +13,15 @@ public interface OrderRepository extends CrudRepository<Order, Integer> {
 
     Order findById(int id);
 
+    @Query("""
+    SELECT DISTINCT o
+    FROM Order o
+    JOIN o.cart c
+    JOIN c.cartEntries ce
+    WHERE ce.productVariance.id = :productVarianceId
+    """)
+    List<Order> findAllByProductVarianceId(int productVarianceId);
+
     @Query("SELECT o FROM Order o WHERE o.user.id = :userId")
     List<Order> findAllByUserId(int userId);
 
