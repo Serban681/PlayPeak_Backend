@@ -30,5 +30,5 @@ You can compile and start the PlayPeak Backend either from IntelliJ IDEA or the 
 2. Ensure the **Java SDK** is set to **Java 21**:
    - File > Project Structure > Project SDK → select Java 21
 3. Let IntelliJ sync the Gradle project (watch the bottom status bar).
-4. Open the main class (usually `PlayPeakBackendApplication.java`).
+4. Open the main class, `ShopBackendApplication.java`).
 5. Right-click it and select **Run 'ShopBackendApplication'**.
