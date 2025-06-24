@@ -16,5 +16,5 @@ Ensure the following tools are installed:
 ### 📦 Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/playpeak-backend.git
-cd playpeak-backend
+git clone https://github.com/Serban681/PlayPeak_Backend.git
+cd PlayPeak_Backend
