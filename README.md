@@ -24,7 +24,7 @@ cd PlayPeak_Backend
 
 You can compile and start the PlayPeak Backend either from IntelliJ IDEA or the command line.
 
-### 🧠 Option 1: Using IntelliJ IDEA
+### IntelliJ IDEA
 
 1. Open the project in IntelliJ (File > Open > select the project folder).
 2. Ensure the **Java SDK** is set to **Java 21**:
