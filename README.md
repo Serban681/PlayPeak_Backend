@@ -22,7 +22,7 @@ cd PlayPeak_Backend
 
 ## ⚙️ Build & Run the Application
 
-You can compile and start the PlayPeak Backend either from IntelliJ IDEA or the command line.
+You can compile and start the PlayPeak Backend either from IntelliJ IDEA.
 
 ### IntelliJ IDEA
 
