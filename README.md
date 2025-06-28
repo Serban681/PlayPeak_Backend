@@ -2,7 +2,7 @@
 
 This is the backend service for **PlayPeak**, a Spring Boot application written in Java and built with Gradle. Development is done using IntelliJ IDEA.
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -13,14 +13,14 @@ Ensure the following tools are installed:
 - **IntelliJ IDEA**
 - **Git** (to clone the repository)
 
-### 📦 Clone the Repository
+### Clone the Repository
 
 ```bash
 git clone https://github.com/Serban681/PlayPeak_Backend.git
 cd PlayPeak_Backend
 ```
 
-## ⚙️ Build & Run the Application
+## Build & Run the Application
 
 You can compile and start the PlayPeak Backend either from IntelliJ IDEA.
 
